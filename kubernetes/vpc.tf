@@ -7,7 +7,7 @@ resource "aws_vpc" "containers_vpc" {
     }
 }
 
-resource "aws_vpc_dhcp_options" "hdcpos" {
+resource "aws_vpc_dhcp_options" "dhcpos" {
     domain_name         = "${var.region}.compute.internal"
     domain_name_servers = ["AmazonProvidedDNS"]
 }
