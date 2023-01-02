@@ -3,7 +3,7 @@ data "aws_availability_zones" "available" {
 }
 
 resource "aws_subnet" "private01" {
-    vpc_id                  = aws_vpc.containers_vpc.id
+    vpc_id                  = aws_vpc.containers-vpc.id
     map_public_ip_on_launch = false
     cidr_block              = cidrsubnet(var.vpc_cidr_block, 8, var.private_subnet01_netnum)
     aws_availability_zone   = element(data.aws_availability_zones.available.names, 0)
@@ -15,7 +15,7 @@ resource "aws_subnet" "private01" {
 }
 
 resource "aws_subnet" "public01" {
-    vpc_id                  = aws_vpc.containers_vpc.id
+    vpc_id                  = aws_vpc.containers-vpc.id
     map_public_ip_on_launch = true
     cidr_block              = cidrsubnet(var.vpc_cidr_block, 8, var.public_subnet01_netnum)
     aws_availability_zone   = element(data.aws_availability_zones.available.names, 0)
@@ -27,7 +27,7 @@ resource "aws_subnet" "public01" {
 }
 
 resource "aws_subnet" "utility" {
-    vpc_id                  = aws_vpc.containers_vpc.id
+    vpc_id                  = aws_vpc.containers-vpc.id
     map_public_ip_on_launch = true
     cidr_block              = cidrsubnet(var.vpc_cidr_block, 8, 253)
     aws_availability_zone   = element(data.aws_availability_zones.available.names, 1)
@@ -37,14 +37,14 @@ resource "aws_subnet" "utility" {
 }
 
 resource "aws_route_table" "private_rt" {
-    vpc_id = aws_vpc.containers_vpc.id
+    vpc_id = aws_vpc.containers-vpc.id
 }
 resource "aws_route_table" "public_rt" {
-    vpc_id = aws_vpc.containers_vpc.id
+    vpc_id = aws_vpc.containers-vpc.id
 }
 
 resource "aws_internet_gateway" "igw" {
-    vpc_id = aws_vpc.containers_vpc.id
+    vpc_id = aws_vpc.containers-vpc.id
 }
 resource "aws_eip" "eip" {
     vpc = true
