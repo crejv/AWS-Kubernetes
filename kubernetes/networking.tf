@@ -26,3 +26,55 @@ resource "aws_subnet" "public01" {
     }
 }
 
+resource "aws_subnet" "utility" {
+    vpc_id                  = aws_vpc.containers_vpc.id
+    map_public_ip_on_launch = true
+    cidr_block              = cidrsubnet(var.vpc_cidr_block, 8, 253)
+    aws_availability_zone   = element(data.aws_availability_zones.available.names, 1)
+    tags = {
+        Name    = "utility"
+    }
+}
+
+resource "aws_route_table" "private_rt" {
+    vpc_id = aws_vpc.containers_vpc.id
+}
+resource "aws_route_table" "public_rt" {
+    vpc_id = aws_vpc.containers_vpc.id
+}
+
+resource "aws_internet_gateway" "igw" {
+    vpc_id = aws_vpc.containers_vpc.id
+}
+resource "aws_eip" "eip" {
+    vpc = true
+}
+resource "aws_nat_gateway" "natgw" {
+    allocation_id = aws_eip.eip.id
+    subnet_id = aws_subnet.utility.id
+}
+
+resource "aws_route" "natgw" {
+    route_table_id = aws_route_table.private_rt.id
+    destination_cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.natgw.id
+    depends_on = [aws_nat_gateway.natgw]
+}
+resource "aws_route" "public01_igw" {
+    route_table_id = aws_route_table.public_rt.id
+    destination_cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+}
+
+resource "aws_route_table_association" "private_rta" {
+    subnet_id = aws_subnet.private01.id
+    route_table_id = aws_route_table.private_rt.id
+}
+resource "aws_route_table_association" "public_rta" {
+    subnet_id = aws_subnet.public01.id
+    route_table_id = aws_route_table.public_rt.id
+}
+resource "aws_route_table_association" "utility" {
+    subnet_id = aws_subnet.utility.id
+    route_table_id = aws_route_table.public_rt.id
+}
