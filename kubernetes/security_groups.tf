@@ -1,31 +1,37 @@
+# SG for API Load Balancer(ie. Master01:6443, Master01:6443, Master03:6443, ...N)
 resource "aws_security_group" "api-elb-k8s-local" {
-    name = "api-elb.${var.cluster_name}.k8s.local"
+    name = "api-elb.${local.cluster_name}.k8s.local"
     vpc_id = aws_vpc.containers-vpc
     description = "Security Group for api ELB"
+    # Allow traffic on port 6443 for API-Server
     ingress{
         from_port   = 6443
         to_port     = 6443
         protocol    = "tcp"
         cidr_block  = ["0.0.0.0/0"]
     }
+    # Allow icmp traffic such as Ping to reachthe LB
     ingress{
         from_port   = 3
         to_port     = 4
         protocol    = "icmp"
         cidr_block  = ["0.0.0.0/0"]
     }
+    # Allow outbound traffic to anywhere
     egress{
         from_port   = 0
         to_port     = 0
         protocol    = "-1"
         cidr_block  = ["0.0.0.0/0"]
     }
+    # Allow LB to be recognized
     tags = {
-        KubernetesCluster   = "${var.cluster_name}.k8s.local"
-        Name                = "api-elb.${var.cluster_name}.k8s.local"
+        KubernetesCluster   = "${local.cluster_name}.k8s.local"
+        Name                = "api-elb.${local.cluster_name}.k8s.local"
     }
 }
 
+# SG for Bastion Host to SSH into Maters and Workers Nodes
 resource "aws_security_group" "bastion_node" {
     name = "bastion_node"
     vpc_id = aws_vpc.containers-vpc
@@ -49,40 +55,48 @@ resource "aws_security_group" "bastion_node" {
     }
 }
 
+# SG for Worker Nodes
 resource "aws_security_group" "k8s_worker_node" {
-    name = "k8s_workers_${var.cluster_name}"
+    name = "k8s_workers_${local.cluster_name}"
     vpc_id = aws_vpc.containers-vpc
     description = "Worker nodes security group"
     
+    # Allow all traffict from VPC
     ingress{
         from_port   = 0
         to_port     = 0
         protocol    = "-1"
         cidr_block  = [aws_vpc.containers-vpc.cidr_block]
     }
+
+    # Allow all outbound traffic anywhere
     egress{
         from_port   = 0
         to_port     = 0
         protocol    = "-1"
         cidr_block  = ["0.0.0.0/0"]
     }
+
+    # Tag that Kubernetes recognizes and use SG
     tags = {
-        Name                                            = "${var.cluster_name}_nodes"
+        Name                                            = "${local.cluster_name}_nodes"
         "kubernetes.io/cluster/${var.cluster_name}"     = "owned"
     }
 }
 
+# SG for Masters
 resource "aws_security_group" "k8s_master_nodes" {
-    name = "k8s_masters_${var.cluster_name}"
+    name = "k8s_masters_${local.cluster_name}"
     vpc_id = aws_vpc.containers-vpc
     description = "Master nodes security group"
      tags = {
-        Name                                            = "${var.cluster_name}_nodes"
+        Name                                            = "${local.cluster_name}_nodes"
         "kubernetes.io/cluster/${var.cluster_name}"     = "owned"
     }
 }
 
-resource "asw_security_group_rule" "traffic_from_lb" {
+# Allow traffic from LB-to-Masters
+resource "asw_security_group_rule" "traffic_from_lb_to masters" {
     type                            = "ingress"
     description                     = "Allow API traffic from the Load Balancer"
     from_port                       = 6443
@@ -90,6 +104,8 @@ resource "asw_security_group_rule" "traffic_from_lb" {
     source_security_group_id        = aws_security_group.api-elb-k8s-local.id
     security_group_id               = aws_security_group.k8s_master_nodes.id
 }
+
+# Allow traffic from Workers-to-Masters
 resource "asw_security_group_rule" "traffic_from_workers_to_masters" {
     type                            = "ingress"
     description                     = "Traffic from the worker nodes to the master node is allowed"
@@ -99,6 +115,8 @@ resource "asw_security_group_rule" "traffic_from_workers_to_masters" {
     source_security_group_id        = aws_security_group.k8s_worker_node.id
     security_group_id               = aws_security_group.k8s_master_nodes.id
 }
+
+# Allow traffict from bastion-to Masters
 resource "asw_security_group_rule" "traffic_from_bastion_to_masters" {
     type                            = "ingress"
     description                     = "Traffic from the bastion node to the master node is allowed"
@@ -108,6 +126,8 @@ resource "asw_security_group_rule" "traffic_from_bastion_to_masters" {
     source_security_group_id        = aws_security_group.bastion_node.id
     security_group_id               = aws_security_group.k8s_master_nodes.id
 }
+
+# Allow outbound traffict for Marters
 resource "asw_security_group_rule" "masters_egress" {
     type                            = "egress"
     from_port                       = 0
