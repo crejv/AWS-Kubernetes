@@ -26,16 +26,17 @@ variable "iam-master-role-policy-attachment" {
   description = "Master List of IAM policies"
   # Policies
   default     = [
-    "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
-    "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-  ]
+    "arn:aws:iam::aws:policy/IAMFullAccess",
+    "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+    "arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess",
+    "arn:aws:iam::aws:policy/AmazonKeyspacesFullAccess"
+    ]
 }
 variable "iam-worker-role-policy-attachment" {
   type        = list(string)
   description = "Master List of IAM policies"
   # Policies
   default     = [
-    "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
     "arn:aws:iam::aws:policy/AmazonS3FullAccess"
   ]
 }
