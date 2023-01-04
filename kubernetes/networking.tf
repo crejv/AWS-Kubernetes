@@ -2,14 +2,24 @@ data "aws_availability_zones" "available" {
     state = "available"
 }
 
+locals {
+    private_subnet01_netnum = 
+    cluster_name = "training-eks-${random_string.suffix.result}"
+}
+
+resource "random_sting" "suffix" {
+    length = 4
+    special = false
+}
+
 resource "aws_subnet" "private01" {
     vpc_id                  = aws_vpc.containers-vpc.id
     map_public_ip_on_launch = false
-    cidr_block              = cidrsubnet(var.vpc_cidr_block, 8, var.private_subnet01_netnum)
+    cidr_block              = cidrsubnet(var.vpc_cidr_block, 8, 10)
     aws_availability_zone   = element(data.aws_availability_zones.available.names, 0)
     tags = {
-        Name                                        = "private-subnet01-${var.cluster_name}"
-        "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+        Name                                        = "private-subnet01-${local.cluster_name}"
+        "kubernetes.io/cluster/${local.cluster_name}" = "shared"
         "kubernetes.io/role/internal-elb"           = "1"
     }
 }
@@ -17,11 +27,11 @@ resource "aws_subnet" "private01" {
 resource "aws_subnet" "public01" {
     vpc_id                  = aws_vpc.containers-vpc.id
     map_public_ip_on_launch = true
-    cidr_block              = cidrsubnet(var.vpc_cidr_block, 8, var.public_subnet01_netnum)
+    cidr_block              = cidrsubnet(var.vpc_cidr_block, 8, 20)
     aws_availability_zone   = element(data.aws_availability_zones.available.names, 0)
     tags = {
-        Name                                        = "public-subnet01-${var.cluster_name}"
-        "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+        Name                                        = "public-subnet01-${local.cluster_name}"
+        "kubernetes.io/cluster/${local.cluster_name}" = "shared"
         "kubernetes.io/role/elb"                    = "1"
     }
 }
@@ -46,6 +56,8 @@ resource "aws_route_table" "public_rt" {
 resource "aws_internet_gateway" "igw" {
     vpc_id = aws_vpc.containers-vpc.id
 }
+
+
 resource "aws_eip" "eip" {
     vpc = true
 }
@@ -54,10 +66,12 @@ resource "aws_nat_gateway" "natgw" {
     subnet_id = aws_subnet.utility.id
 }
 
+
 resource "aws_route" "natgw" {
     route_table_id = aws_route_table.private_rt.id
     destination_cidr_block = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.natgw.id
+    
     depends_on = [aws_nat_gateway.natgw]
 }
 resource "aws_route" "public01_igw" {
