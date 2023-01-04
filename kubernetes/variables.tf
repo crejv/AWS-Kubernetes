@@ -20,3 +20,22 @@ variable "public_subnet01_netnum" {
     type = string 
 }
 
+# Define Policy. Policy consist list of AWS managed polices
+variable "iam-master-role-policy-attachment" {
+  type        = list(string)
+  description = "Master List of IAM policies"
+  # Policies
+  default     = [
+    "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
+    "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  ]
+}
+variable "iam-worker-role-policy-attachment" {
+  type        = list(string)
+  description = "Master List of IAM policies"
+  # Policies
+  default     = [
+    "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
+    "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  ]
+}
