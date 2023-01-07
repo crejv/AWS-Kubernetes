@@ -96,7 +96,7 @@ resource "aws_security_group" "k8s_master_nodes" {
 }
 
 # Allow traffic from LB-to-Masters
-resource "asw_security_group_rule" "traffic_from_lb_to masters" {
+resource "asw_security_group_rule" "traffic_from_lb_to_masters" {
     type                            = "ingress"
     description                     = "Allow API traffic from the Load Balancer"
     from_port                       = 6443
