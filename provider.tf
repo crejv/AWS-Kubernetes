@@ -1,7 +1,7 @@
-Setup terraform provider(s) and version
-Assume Role
-Define Variable(s)
-VPC Proof of Concept Deployment
+# Setup terraform provider(s) and version
+# Assume Role
+# Define Variable(s)
+# VPC Proof of Concept Deployment
 
 terraform {
   required_providers {
