@@ -1,6 +1,6 @@
 # Initialize Instance Deployment
 resource "aws_instance" "bastion" {
-  ami                  = data.aws_ami.aws_linux.id
+  ami                  = data.aws_ami.ubuntu.id
   instance_type        = "t3.small"
 #   iam_instance_profile = var.iam_instance_profile
   key_name             = aws_key_pair.my_key.key_name
@@ -40,24 +40,18 @@ resource "local_file" "my_key" {
 # Retreive the Latest Image for Amazon-AWS-Linux Image
 data "aws_ami" "aws_linux" {
   most_recent = true
-  owners      = ["amazon"] # Canonical
+  owners      = ["09972019477"] # Canonical
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm-*-gp2"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-sever-*"]
   }
-  filter {
-    name   = "root-device-type"
-    values = ["ebs"]
-  }
+
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
   }
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
-  }
+
 }
 
 
@@ -78,7 +72,7 @@ resource "aws_elb" "api-k8s-local" {
         healthy_threshold   = 2
         unhealthy_threshold = 2
         interval            = 10
-        timeout             =5
+        timeout             = 5
     }
 
     cross_zone_load_balancing   = true
@@ -124,5 +118,73 @@ resource "aws_autoscaling_group" "master-k8s-local-01" {
         key                 = "KubernetesCluster"
         value               = local.cluster_name
         propagate_at_launch = true
-    }]
+    },
+    {
+      key                   = "Name"
+      value                 = "masters.${local.cluster_name}"
+      propagate_at_launch   = true
+    },
+    {
+      key                   = "k8s.io/role/master"
+      value                 = "1"
+      propagate_at_launch   = true
+    },
+    {
+      key                   = "kubernetes.io/cluster/${var.cluster_name}"
+      value                 = "1"
+      propagate_at_launch   = true
+    }
+  ]
+}
+
+
+resource "aws_launch_configuration" "worker-k8s-local" {
+    name_prefix             = "nodes.${local.cluster_name}"
+    image_id                = var.ami
+    instance_type           = "t3.small"
+    key_name                = aws_key_pair.my_key.key_name
+    iam_instance_profile    = aws_iam_instance_profile.terraform_k8s_worker_role-Instance-Profile.id
+    security_groups         = [aws_security_group.k8s_master_nodes.id]
+    user_data               = <<EOT
+    #!/bin/bash
+    hostnamectl set-hostname --static "$(curl -s http:169.254.169.254/latest/meta-data/local-hostname)"
+    EOT
+    lifecycle {
+        create_before_destroy   = true
+    }
+    root_block_device {
+        volume_type             = "gp2"
+        volume_size              = 20
+        delete_on_termination   = true
+    }
+}
+
+resource "aws_autoscaling_group" "nodes-k8s" {
+    name                    = "${local.cluster_name}_workers"
+    launch_configuration    = aws_launch_configuration.masters-az01-k8s-local.id
+    max_size                = 1
+    min_size                = 1
+    vpc_zone_identifier     = [aws_subnet.private01.id]
+   
+    tags = [{
+        key                 = "KubernetesCluster"
+        value               = local.cluster_name
+        propagate_at_launch = true
+    },
+    {
+      key                   = "Name"
+      value                 = "nodes.${local.cluster_name}"
+      propagate_at_launch   = true
+    },
+    {
+      key                   = "k8s.io/role/node"
+      value                 = "1"
+      propagate_at_launch   = true
+    },
+    {
+      key                   = "kubernetes.io/cluster/${var.cluster_name}"
+      value                 = "1"
+      propagate_at_launch   = true
+    }
+  ]
 }

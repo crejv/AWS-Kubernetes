@@ -42,3 +42,8 @@ variable "iam-worker-role-policy-attachment" {
     "arn:aws:iam::aws:policy/AmazonS3FullAccess"
   ]
 }
+
+variable "ami" {
+    type = string
+    default = "ami-0b149b4c68ab69dce"
+}
