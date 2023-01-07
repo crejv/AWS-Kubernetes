@@ -1,7 +1,7 @@
 # SG for API Load Balancer(ie. Master01:6443, Master01:6443, Master03:6443, ...N)
 resource "aws_security_group" "api-elb-k8s-local" {
     name = "api-elb.${local.cluster_name}.k8s.local"
-    vpc_id = aws_vpc.containers-vpc
+    vpc_id = aws_vpc.containers-vpc.id
     description = "Security Group for api ELB"
     # Allow traffic on port 6443 for API-Server
     ingress{
@@ -17,7 +17,7 @@ resource "aws_security_group" "api-elb-k8s-local" {
         protocol    = "icmp"
         cidr_block  = ["0.0.0.0/0"]
     }
-    # Allow outbound traffic to anywhere
+    # Allow outbound traffic from LB to anywhere
     egress{
         from_port   = 0
         to_port     = 0
@@ -34,7 +34,7 @@ resource "aws_security_group" "api-elb-k8s-local" {
 # SG for Bastion Host to SSH into Maters and Workers Nodes
 resource "aws_security_group" "bastion_node" {
     name = "bastion_node"
-    vpc_id = aws_vpc.containers-vpc
+    vpc_id = aws_vpc.containers-vpc.id
     description = "Allow required traffict to the bastion node"
     
     ingress{
@@ -58,7 +58,7 @@ resource "aws_security_group" "bastion_node" {
 # SG for Worker Nodes
 resource "aws_security_group" "k8s_worker_node" {
     name = "k8s_workers_${local.cluster_name}"
-    vpc_id = aws_vpc.containers-vpc
+    vpc_id = aws_vpc.containers-vpc.id
     description = "Worker nodes security group"
     
     # Allow all traffict from VPC
@@ -87,7 +87,7 @@ resource "aws_security_group" "k8s_worker_node" {
 # SG for Masters
 resource "aws_security_group" "k8s_master_nodes" {
     name = "k8s_masters_${local.cluster_name}"
-    vpc_id = aws_vpc.containers-vpc
+    vpc_id = aws_vpc.containers-vpc.id
     description = "Master nodes security group"
      tags = {
         Name                                            = "${local.cluster_name}_nodes"
