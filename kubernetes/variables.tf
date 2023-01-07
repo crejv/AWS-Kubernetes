@@ -15,9 +15,11 @@ variable "region"{
 }
 variable "private_subnet01_netnum" {
     type = string
+    default = "10"
 }
 variable "public_subnet01_netnum" {
     type = string 
+    default = "20"
 }
 
 # Define Policy. Policy consist list of AWS managed polices
