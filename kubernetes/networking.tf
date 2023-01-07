@@ -4,7 +4,6 @@ data "aws_availability_zones" "available" {
 }
 
 locals {
-    private_subnet01_netnum = 
     cluster_name = "training-eks-${random_string.suffix.result}"
 }
 
