@@ -96,7 +96,7 @@ resource "aws_security_group" "k8s_master_nodes" {
 }
 
 # Allow traffic from LB-to-Masters
-resource "asw_security_group_rule" "traffic_from_lb_to_masters" {
+resource "aws_security_group_rule" "traffic_from_lb_to_masters" {
     type                            = "ingress"
     description                     = "Allow API traffic from the Load Balancer"
     from_port                       = 6443
@@ -107,7 +107,7 @@ resource "asw_security_group_rule" "traffic_from_lb_to_masters" {
 }
 
 # Allow traffic from Workers-to-Masters
-resource "asw_security_group_rule" "traffic_from_workers_to_masters" {
+resource "aws_security_group_rule" "traffic_from_workers_to_masters" {
     type                            = "ingress"
     description                     = "Traffic from the worker nodes to the master node is allowed"
     from_port                       = 0
@@ -118,7 +118,7 @@ resource "asw_security_group_rule" "traffic_from_workers_to_masters" {
 }
 
 # Allow traffict from bastion-to Masters
-resource "asw_security_group_rule" "traffic_from_bastion_to_masters" {
+resource "aws_security_group_rule" "traffic_from_bastion_to_masters" {
     type                            = "ingress"
     description                     = "Traffic from the bastion node to the master node is allowed"
     from_port                       = 22
@@ -129,7 +129,7 @@ resource "asw_security_group_rule" "traffic_from_bastion_to_masters" {
 }
 
 # Allow outbound traffict for Marters
-resource "asw_security_group_rule" "masters_egress" {
+resource "aws_security_group_rule" "masters_egress" {
     type                            = "egress"
     from_port                       = 0
     to_port                         = 0
