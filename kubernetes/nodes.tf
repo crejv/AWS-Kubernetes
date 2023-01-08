@@ -14,7 +14,7 @@ resource "aws_instance" "bastion" {
   }
 
   tags = {
-    Name = "bastion.${local.custer_name}"
+    Name = "bastion.${local.cluster_name}"
   }
 }
 
