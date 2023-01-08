@@ -16,7 +16,7 @@ resource "aws_subnet" "private01" {
     vpc_id                  = aws_vpc.containers-vpc.id
     map_public_ip_on_launch = false
     cidr_block              = cidrsubnet(var.vpc_cidr_block, 8, var.private_subnet01_netnum)
-    aws_availability_zone   = element(data.aws_availability_zones.available.names, 0)
+    # aws_availability_zone   = element(data.aws_availability_zones.available.names, 0)
     tags = {
         Name                                        = "private-subnet01-${local.cluster_name}"
         "kubernetes.io/cluster/${local.cluster_name}" = "shared"
@@ -28,7 +28,7 @@ resource "aws_subnet" "public01" {
     vpc_id                  = aws_vpc.containers-vpc.id
     map_public_ip_on_launch = true
     cidr_block              = cidrsubnet(var.vpc_cidr_block, 8, var.public_subnet01_netnum)
-    aws_availability_zone   = element(data.aws_availability_zones.available.names, 0)
+    # aws_availability_zone   = element(data.aws_availability_zones.available.names, 0)
     tags = {
         Name                                        = "public-subnet01-${local.cluster_name}"
         "kubernetes.io/cluster/${local.cluster_name}" = "shared"
@@ -40,7 +40,7 @@ resource "aws_subnet" "utility" {
     vpc_id                  = aws_vpc.containers-vpc.id
     map_public_ip_on_launch = true
     cidr_block              = cidrsubnet(var.vpc_cidr_block, 8, 253)
-    aws_availability_zone   = element(data.aws_availability_zones.available.names, 1)
+    # aws_availability_zone   = element(data.aws_availability_zones.available.names, 1)
     tags = {
         Name    = "utility"
     }

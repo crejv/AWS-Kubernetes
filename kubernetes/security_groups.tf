@@ -66,7 +66,7 @@ resource "aws_security_group" "k8s_worker_node" {
         from_port   = 0
         to_port     = 0
         protocol    = "-1"
-        cidr_block  = [aws_vpc.containers-vpc.cidr_block]
+        cidr_blocks  = [aws_vpc.containers-vpc.cidr_block]
     }
 
     # Allow all outbound traffic anywhere
@@ -74,7 +74,7 @@ resource "aws_security_group" "k8s_worker_node" {
         from_port   = 0
         to_port     = 0
         protocol    = "-1"
-        cidr_block  = ["0.0.0.0/0"]
+        cidr_blocks  = ["0.0.0.0/0"]
     }
 
     # Tag that Kubernetes recognizes and use SG
