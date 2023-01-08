@@ -40,7 +40,7 @@ resource "local_file" "my_key" {
 # Retreive the Latest Image for Amazon-AWS-Linux Image
 data "aws_ami" "aws_linux" {
   most_recent = true
-  owners      = ["09972019477"] # Canonical
+  owners      = ["099720109477"] # Canonical
 
   filter {
     name   = "name"
