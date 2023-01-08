@@ -7,7 +7,7 @@ locals {
     cluster_name = "training-eks-${random_string.suffix.result}"
 }
 
-resource "random_sting" "suffix" {
+resource "random_string" "suffix" {
     length = 4
     special = false
 }
