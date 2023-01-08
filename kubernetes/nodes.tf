@@ -7,7 +7,7 @@ resource "aws_instance" "bastion" {
 #   user_data            = var.user_data
 
   subnet_id            = aws_subnet.utility.id
-  security_groups      = [aws_security_group.bastion.node.id]
+  security_groups      = [aws_security_group.bastion_node.id]
 
   root_block_device {
     volume_size = 20
