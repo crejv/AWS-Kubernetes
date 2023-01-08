@@ -1,6 +1,6 @@
 # Initialize Instance Deployment
 resource "aws_instance" "bastion" {
-  ami                  = data.aws_ami.ubuntu.id
+  ami                  = data.aws_ami.aws_linux.id
   instance_type        = "t3.small"
 #   iam_instance_profile = var.iam_instance_profile
   key_name             = aws_key_pair.my_key.key_name

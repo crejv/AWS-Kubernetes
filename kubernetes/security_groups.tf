@@ -8,21 +8,21 @@ resource "aws_security_group" "api-elb-k8s-local" {
         from_port   = 6443
         to_port     = 6443
         protocol    = "tcp"
-        cidr_block  = ["0.0.0.0/0"]
+        cidr_blocks  = ["0.0.0.0/0"]
     }
     # Allow icmp traffic such as Ping to reachthe LB
     ingress{
         from_port   = 3
         to_port     = 4
         protocol    = "icmp"
-        cidr_block  = ["0.0.0.0/0"]
+        cidr_blocks  = ["0.0.0.0/0"]
     }
     # Allow outbound traffic from LB to anywhere
     egress{
         from_port   = 0
         to_port     = 0
         protocol    = "-1"
-        cidr_block  = ["0.0.0.0/0"]
+        cidr_blocks  = ["0.0.0.0/0"]
     }
     # Allow LB to be recognized
     tags = {
