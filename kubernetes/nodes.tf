@@ -40,20 +40,25 @@ resource "local_file" "my_key" {
 # Retreive the Latest Image for Amazon-AWS-Linux Image
 data "aws_ami" "aws_linux" {
   most_recent = true
-  owners      = ["099720109477"] # Canonical
+  owners      = ["amazon"] # Canonical
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-sever-*"]
+    values = ["amzn2-ami-hvm-*-gp2"]
   }
-
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
   }
-
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
 }
-
 
 resource "aws_elb" "api-k8s-local" {
     name = "api-${local.cluster_name}"
